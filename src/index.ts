@@ -4,23 +4,41 @@ import {users, User} from "./users"
 import path from 'path';
 import bcrypt from "bcrypt";
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'pages')));
+// app.use(express.static('dist'));
+//app.use(express.static(path.join(__dirname, 'pages')));
+app.use(express.static(path.join(__dirname,'../dist/')));
+
 app.use("/api", bookRoutes);
+const pagesPath = path.join(__dirname, "../dist/pages");
 
 app.get("/", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, 'pages', 'index.html'));
+    res.sendFile(path.join(pagesPath , "index.html"));
 });
 
+
+app.get("/register", (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, 'register.html'));
+});
+
+
+app.get("/login", (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, 'login.html'));
+});
+
+
+
 app.get('/about', (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, 'pages', 'about.html'));
+    res.sendFile(path.join(pagesPath, "about.html"));
 });
 
 
 app.post('/register', async (req: Request, res: Response) => {
+    console.log("api is working")
 
     try{
         const new_email = req.body.email
@@ -28,17 +46,19 @@ app.post('/register', async (req: Request, res: Response) => {
 
         if(!new_email || !new_password ) {
             res.status(400).json({message: "give email and password"})
+            return
         } 
         
         const user_exist = users.find(user => user.email === new_email)
 
         if(user_exist){
             res.status(400).json({message: "This user already exist"})
+            return
         }
-        console.log("before await")
+        // console.log("before await")
         const salt = await bcrypt.genSalt(10);
         const new_pass_hash = await bcrypt.hash(new_password, salt)
-        console.log("after await")
+        // console.log("after await")
         const new_user: User = {
             id: users.length + 1,
             email: new_email,
@@ -46,46 +66,54 @@ app.post('/register', async (req: Request, res: Response) => {
         }
 
         users.push(new_user);
-
         res.status(200).json({message: "user successfully created"})
-
+        return
 
     } catch(error) {
         res.status(500).json({ message: "Server error" });
+        return
     }
  
 });
 
-// app.post("/register", (req: any, res: any) => {
-//     try {
-//         const { email, password } = req.body;
 
-//         if (!email || !password) {
-//             return res.status(400).json({ message: "Email and password are required" });
-//         }
+app.post('/login', async (req: Request, res: Response) => {
+    try{
 
-//         const existingUser = users.find(user => user.email === email);
-//         if (existingUser) {
-//             return res.status(400).json({ message: "User already exists" });
-//         }
+    
+        const login_email = req.body.email
+        const login_password = req.body.password
+        console.log(`email ${login_email} pass ${login_password}`)
+        if(!login_email || !login_password) {
+            res.status(400).json({message: "you need to fill both, email and password"})
+            return
+        }
 
-//         const passwordHash = password
-//         const newUser: User = {
-//             id: users.length + 1,
-//             email,
-//             passwordHash,
-//         };
+        const user_exist = users.find(user => user.email === login_email)
 
-//         users.push(newUser);
+        if(!user_exist) {
+            res.status(400).json({message: "user does not exist"})
+            return
+        } else{
 
-//         res.status(201).json({ message: "User registered successfully" });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
+            // const salt = await bcrypt.genSalt(10);
+            // const login_password_hash = await bcrypt.hash(login_password, salt)
+            
+            const isMatch = await bcrypt.compare(login_password, user_exist.passwordHash);
+            if(isMatch){
+                res.status(200).json({message: "user loged in successfully "})
+                return
+            } else {
+                res.status(400).json({message: "email or password is incorrect"})
+                return
+            }
+        }
+    } catch(error) {
+        res.status(500).json({ message: "Server error" });
+        return
+    }
 
-
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

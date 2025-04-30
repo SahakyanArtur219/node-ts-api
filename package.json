@@ -5,6 +5,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon src/index.ts",
+    "devv": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "serve": "node dist/index.js"
   },
