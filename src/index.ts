@@ -1,20 +1,43 @@
-import express, { Request, Response} from "express";
+import express, { Request, Response, NextFunction} from "express";
 import bookRoutes from "./routes/bookRoutes";
 import {users, User} from "./users"
 import path from 'path';
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken"
+import authenticateToken from './middleware/authenticateToken';
 
-
+const JWT_SECRET = "your-very-secret-key"; 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-// app.use(express.static('dist'));
-//app.use(express.static(path.join(__dirname, 'pages')));
 app.use(express.static(path.join(__dirname,'../dist/')));
-
-app.use("/api", bookRoutes);
+//app.use("/api", bookRoutes);
 const pagesPath = path.join(__dirname, "../dist/pages");
+
+
+app.get('/account', authenticateToken, (req: Request, res: Response) => {
+    const userId = (req as any).userId;
+    const user = users.find(u => u.id === userId);
+
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return
+    }
+
+    res.status(200).json({
+        id: user.id,
+        email: user.email,
+    });
+});
+
+
+app.get("/account.html", (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, "account.html"));
+});
+
+
+
 
 app.get("/", (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath , "index.html"));
@@ -77,10 +100,13 @@ app.post('/register', async (req: Request, res: Response) => {
 });
 
 
+app.get("/account-page", (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, "account.html"));
+});
+
+
 app.post('/login', async (req: Request, res: Response) => {
     try{
-
-    
         const login_email = req.body.email
         const login_password = req.body.password
         console.log(`email ${login_email} pass ${login_password}`)
@@ -101,7 +127,9 @@ app.post('/login', async (req: Request, res: Response) => {
             
             const isMatch = await bcrypt.compare(login_password, user_exist.passwordHash);
             if(isMatch){
-                res.status(200).json({message: "user loged in successfully "})
+
+                const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1h' });
+                res.status(200).json({message: "user loged in successfully ", token})
                 return
             } else {
                 res.status(400).json({message: "email or password is incorrect"})
