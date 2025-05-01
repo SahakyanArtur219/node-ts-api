@@ -54,7 +54,6 @@ app.get("/login", (req: Request, res: Response) => {
 });
 
 
-
 app.get('/about', (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath, "about.html"));
 });

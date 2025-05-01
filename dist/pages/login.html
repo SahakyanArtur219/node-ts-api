@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Register Page</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .message {
+      margin-top: 15px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <button onclick="location.href='/'">Home page</button>
+    <h2>Login</h2>
+    <form id="registerForm">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    <div class="message" id="message"></div>
+  </div>
+  <script>
+    const form = document.getElementById('registerForm');
+    const messageDiv = document.getElementById('message');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+  
+      const email = form.email.value;
+      const password = form.password.value;
+  
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+  
+        const data = await response.json();
+        
+        if (response.ok && data.token) {
+          console.log("token is okay")
+          localStorage.setItem('token', data.token);
+  
+          // ✅ Redirect to account page
+          window.location.href = '/account.html';
+        } else {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = data.message || 'Login failed';
+        }
+      } catch (err) {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Error submitting form';
+      }
+    });
+  </script>
+  
+</body>
+</html>
