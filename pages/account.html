@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Account</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="content" id="account-info">Loading user info...</div>
+  <!-- <script>
+    async function fetchAccount() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html'; 
+        return;
+      }
+      const res = await fetch('/account', {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await res.json();
+      const div = document.getElementById('account-info');
+
+      if (res.ok) {
+        div.innerHTML = `<h1>Hello, ${data.email}</h1>`;
+      } else {
+        div.innerHTML = '<h1>Failed to load account info. Redirecting to login...</h1>';
+        setTimeout(() => window.location.href = '/login.html', 2000);
+      }
+    }
+
+    fetchAccount();
+  </script> -->
+  
+  <script src="../account.js"></script>
+</body>
+</html>

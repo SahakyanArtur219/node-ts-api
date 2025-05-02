@@ -1,8 +1,7 @@
-// middleware/authenticateToken.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = "your-very-secret-key";  // Use the same secret key as above
+const JWT_SECRET = "your-very-secret-key"; 
 
 function authenticateToken(req: Request, res: Response, next: NextFunction): void {
     // Get token from the Authorization header

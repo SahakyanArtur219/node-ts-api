@@ -13,18 +13,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'../dist/')));
 //app.use("/api", bookRoutes);
-const pagesPath = path.join(__dirname, "../dist/pages");
+const pagesPath = path.join(__dirname, "../pages");
 
 
 app.get('/account', authenticateToken, (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = users.find(u => u.id === userId);
-
     if (!user) {
         res.status(404).json({ message: "User not found" });
         return
     }
-
     res.status(200).json({
         id: user.id,
         email: user.email,
@@ -32,7 +30,7 @@ app.get('/account', authenticateToken, (req: Request, res: Response) => {
 });
 
 
-app.get("/account.html", (req: Request, res: Response) => {
+app.get("/account-page", (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath, "account.html"));
 });
 
@@ -120,14 +118,10 @@ app.post('/login', async (req: Request, res: Response) => {
             res.status(400).json({message: "user does not exist"})
             return
         } else{
-
-            // const salt = await bcrypt.genSalt(10);
-            // const login_password_hash = await bcrypt.hash(login_password, salt)
-            
             const isMatch = await bcrypt.compare(login_password, user_exist.passwordHash);
             if(isMatch){
 
-                const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1m' });
                 res.status(200).json({message: "user loged in successfully ", token})
                 return
             } else {
