@@ -5,20 +5,25 @@ import path from 'path';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import authenticateToken from './middleware/authenticateToken';
+import cookieParser from 'cookie-parser';
 
 const JWT_SECRET = "your-very-secret-key"; 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'../dist/')));
-//app.use("/api", bookRoutes);
+app.use(express.static(path.join(__dirname,'../')));
 const pagesPath = path.join(__dirname, "../pages");
-
+app.use(cookieParser());
+//app.use("/api", bookRoutes);
+app.use(express.static(path.join(__dirname,'../pages')));
 
 app.get('/account', authenticateToken, (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = users.find(u => u.id === userId);
+    console.log(userId)
+    console.log(user)
+    console.log("you are in /account")
     if (!user) {
         res.status(404).json({ message: "User not found" });
         return
@@ -33,9 +38,6 @@ app.get('/account', authenticateToken, (req: Request, res: Response) => {
 app.get("/account-page", (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath, "account.html"));
 });
-
-
-
 
 app.get("/", (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath , "index.html"));
@@ -96,12 +98,6 @@ app.post('/register', async (req: Request, res: Response) => {
  
 });
 
-
-app.get("/account-page", (req: Request, res: Response) => {
-    res.sendFile(path.join(pagesPath, "account.html"));
-});
-
-
 app.post('/login', async (req: Request, res: Response) => {
     try{
         const login_email = req.body.email
@@ -122,7 +118,15 @@ app.post('/login', async (req: Request, res: Response) => {
             if(isMatch){
 
                 const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1m' });
-                res.status(200).json({message: "user loged in successfully ", token})
+                console.log(token)
+                res.cookie('token', token, {
+                    httpOnly: true,     // JS can't access it!
+                    secure: true,       // Only over HTTPS (set to false for local dev if needed)
+                    sameSite: 'strict', // Prevent CSRF
+                    maxAge: 3600000     // 1 hour
+                  });
+
+                res.status(200).json({message: "user loged in successfully "})
                 return
             } else {
                 res.status(400).json({message: "email or password is incorrect"})
@@ -133,7 +137,6 @@ app.post('/login', async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error" });
         return
     }
-
 })
 
 app.listen(PORT, () => {

@@ -1,16 +1,8 @@
-
 async function fetchAccount(): Promise<void> {
-  const token: string | null = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = '/login.html';
-    return;
-  }
-
   try {
     const res: Response = await fetch('/account', {
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
+      method: 'GET',
+      credentials: 'include',
     });
 
     const data: { email?: string; message?: string } = await res.json();

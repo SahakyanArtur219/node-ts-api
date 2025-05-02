@@ -17,10 +17,11 @@ if (formForLogin && messageDivForLogin) {
         body: JSON.stringify({ email, password })
       });
       const data: { message?: string; token?: string } = await response.json();
+      console.log(data)
 
-      if (response.ok && data.token) {
+      if (response.ok) {
         console.log("token is okay");
-        localStorage.setItem('token', data.token);
+        //localStorage.setItem('token', data.token);
         window.location.href = '/account-page';
       } else {
         messageDivForLogin.style.color = 'red';
