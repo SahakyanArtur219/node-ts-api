@@ -7,13 +7,35 @@ async function fetchAccount(): Promise<void> {
 
     const data: { email?: string; message?: string } = await res.json();
     const div = document.getElementById('account-info') as HTMLDivElement | null;
-    
+
     if (!div) {
       console.error('Could not find #account-info element');
       return;
     }
+
     if (res.ok && data.email) {
-      div.innerHTML = `<h1>Hello, ${data.email}</h1>`;
+      div.innerHTML = `
+        <h1>Hello, ${data.email}</h1>
+        <button onclick="location.href='/about'">About</button>
+        <button id="logout-button">Log Out</button>
+        <button onclick="location.href='/mydata'">My Data</button>
+      `;
+
+      console.log("code after buttons")
+      
+      const logoutButton = document.getElementById('logout-button');
+      logoutButton?.addEventListener('click', () => {
+        fetch('/logout', {
+          method: 'POST',
+          credentials: 'include',
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log(data.message);
+            window.location.href = '/login';
+          });
+      });
+
     } else {
       div.innerHTML = '<h1>Failed to load account info. Redirecting to login...</h1>';
       setTimeout(() => window.location.href = '/login.html', 2000);

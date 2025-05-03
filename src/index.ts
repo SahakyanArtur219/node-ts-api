@@ -35,6 +35,29 @@ app.get('/account', authenticateToken, (req: Request, res: Response) => {
 });
 
 
+
+app.get('/mydata', authenticateToken, (req: Request, res: Response) => {
+
+    const userId = (req as any).userId;
+    const user = users.find(u => u.id === userId);
+
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return
+    }
+    res.status(200).json({
+        firstName: user.firstName,
+        lastNmae: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        city: user.city
+        
+    });
+
+});
+
+
+
 app.get("/account-page", (req: Request, res: Response) => {
     res.sendFile(path.join(pagesPath, "account.html"));
 });
@@ -63,9 +86,13 @@ app.post('/register', async (req: Request, res: Response) => {
     try{
         const new_email = req.body.email
         const new_password = req.body.password
+        const new_firstName = req.body.firstName
+        const new_lastName = req.body.lastName
+        const new_city = req.body.city 
+        const new_phone = req.body.phone
 
-        if(!new_email || !new_password ) {
-            res.status(400).json({message: "give email and password"})
+        if(!new_email || !new_password || !new_firstName || !new_lastName || !new_city || !new_phone) {
+            res.status(400).json({message: "give all data"})
             return
         } 
         
@@ -80,9 +107,12 @@ app.post('/register', async (req: Request, res: Response) => {
         const new_user: User = {
             id: users.length + 1,
             email: new_email,
-            passwordHash: new_pass_hash
+            passwordHash: new_pass_hash,
+            firstName: new_firstName,
+            lastName: new_lastName,
+            city: new_city,
+            phone: new_phone
         }
-
         users.push(new_user);
         res.status(200).json({message: "user successfully created"})
         return
@@ -102,9 +132,7 @@ app.post('/login', async (req: Request, res: Response) => {
             res.status(400).json({message: "you need to fill both, email and password"})
             return
         }
-
         const user_exist = users.find(user => user.email === login_email)
-
         if(!user_exist) {
             res.status(400).json({message: "user does not exist"})
             return
@@ -112,7 +140,7 @@ app.post('/login', async (req: Request, res: Response) => {
             const isMatch = await bcrypt.compare(login_password, user_exist.passwordHash);
             if(isMatch){
 
-                const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1m' });
+                const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1h' });
                 res.cookie('token', token, {
                     httpOnly: true,     // JS can't access it!
                     secure: true,       // Only over HTTPS (set to false for local dev if needed)
@@ -132,6 +160,17 @@ app.post('/login', async (req: Request, res: Response) => {
         return
     }
 })
+
+
+app.post('/logout', async (req: Request, res: Response) =>{
+    res.clearCookie('token',{
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict'
+    });
+    res.status(200).json({message: "log out success"});
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

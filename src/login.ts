@@ -16,7 +16,7 @@ if (formForLogin && messageDivForLogin) {
         },
         body: JSON.stringify({ email, password })
       });
-      const data: { message?: string; token?: string } = await response.json();
+      const data: { message?: string; } = await response.json();
 
       if (response.ok) {
         //localStorage.setItem('token', data.token);

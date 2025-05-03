@@ -1,7 +1,7 @@
 const formForRegister = document.getElementById('registerForm') as HTMLFormElement | null;
 const messageDivForRegister = document.getElementById('message') as HTMLDivElement | null;
 
-console.log("work");
+
 
 if (formForRegister && messageDivForRegister) {
     formForRegister.addEventListener('submit', async (e: Event) => {
@@ -9,14 +9,17 @@ if (formForRegister && messageDivForRegister) {
 
     const email = (formForRegister.elements.namedItem('email') as HTMLInputElement)?.value;
     const password = (formForRegister.elements.namedItem('password') as HTMLInputElement)?.value;
-
+    const lastName = (formForRegister.elements.namedItem('lastName') as HTMLInputElement)?.value;
+    const firstName = (formForRegister.elements.namedItem('firstName') as HTMLInputElement)?.value;
+    const city = (formForRegister.elements.namedItem('city') as HTMLInputElement)?.value;
+    const phone = (formForRegister.elements.namedItem('phone') as HTMLInputElement)?.value;
     try {
       const response = await fetch('/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, firstName, lastName, city, phone })
       });
 
       const data: { message: string } = await response.json();
