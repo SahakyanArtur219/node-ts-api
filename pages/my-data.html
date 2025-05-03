@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About Page</title>
+  <style>
+    body {
+      background-color: #ffe0b2;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+ 
+    <div class="container">
+        <button onclick="location.href='/account-page'">Back to the account-page</button>
+        <button onclick="location.href='/editPage'">Edit profile data</button>
+        <h1>Personal Data Page</h1>
+        <div id="user-data">
+          <p>Loading...</p>
+        </div>
+      </div>
+      
+      <script>
+        fetch('/mydata', {
+          method: 'GET',
+          credentials: 'include'
+        })
+          .then(res => res.json())
+          .then(data => {
+            const container = document.getElementById('user-data');
+            if (data) {
+              container.innerHTML = `
+                <p><strong>First Name:</strong> ${data.firstName}</p>
+                <p><strong>Last Name:</strong> ${data.lastName}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Phone:</strong> ${data.phone}</p>
+                <p><strong>City:</strong> ${data.city}</p>
+              `;
+            } else {
+              container.innerHTML = `<p>Failed to load data. Redirecting to login...</p>`;
+              setTimeout(() => window.location.href = '/account-page', 2000);
+            }
+          })
+          .catch(err => {
+            console.error('Fetch error:', err);
+            document.getElementById('user-data').innerHTML = '<p>Error loading data.</p>';
+          });
+      </script>
+</body>
+</html>

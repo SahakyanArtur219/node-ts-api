@@ -18,7 +18,7 @@ async function fetchAccount(): Promise<void> {
         <h1>Hello, ${data.email}</h1>
         <button onclick="location.href='/about'">About</button>
         <button id="logout-button">Log Out</button>
-        <button onclick="location.href='/mydata'">My Data</button>
+        <button onclick="location.href='/Personaldata'">My Data</button>
       `;
 
       console.log("code after buttons")

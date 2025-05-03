@@ -7,7 +7,6 @@ function authenticateToken(req: Request, res: Response, next: NextFunction): voi
     // Get token from the Authorization header
     //const token = req.headers['authorization']?.split(' ')[1]; // 'Bearer token'
     const token = req.cookies.token;
-
     if (!token) {
         res.status(401).json({ message: "Access denied, token missing" });
         return
@@ -23,7 +22,6 @@ function authenticateToken(req: Request, res: Response, next: NextFunction): voi
     //     // Call next() to pass control to the next middleware/handler
     //     next();
     // });
-
     try {
         const decoded = jwt.verify(token, JWT_SECRET!);
         (req as any).userId = (decoded as any).userId;
@@ -33,7 +31,6 @@ function authenticateToken(req: Request, res: Response, next: NextFunction): voi
         res.status(403).json({ message: 'Invalid token' });
         return
       }
-
 }
 
 export default authenticateToken;

@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname,'../dist')));
 const pagesPath = path.join(__dirname, "../pages");
 app.use(cookieParser());
 //app.use("/api", bookRoutes);
-app.use(express.static(path.join(__dirname,'../pages')));
+//app.use(express.static(path.join(__dirname,'../pages')));
 app.use(express.static('../dist'));
 
 
@@ -35,6 +35,30 @@ app.get('/account', authenticateToken, (req: Request, res: Response) => {
 });
 
 
+app.put('/profile', authenticateToken, (req: Request, res: Response) => {
+
+    const userId = (req as any).userId;
+    const user = users.find(u => u.id === userId);
+
+    if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+    }
+
+    const { firstName, lastName, phone, city } = req.body;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.phone = phone;
+    user.city = city;
+    res.status(200).json({message: "updated is successfully"});
+
+});
+
+
+app.get('/editPage', (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, "edit-data-page.html"));
+});
+
 
 app.get('/mydata', authenticateToken, (req: Request, res: Response) => {
 
@@ -47,15 +71,19 @@ app.get('/mydata', authenticateToken, (req: Request, res: Response) => {
     }
     res.status(200).json({
         firstName: user.firstName,
-        lastNmae: user.lastName,
+        lastName: user.lastName,
         email: user.email,
         phone: user.phone,
         city: user.city
         
     });
-
+    
 });
 
+
+app.get('/Personaldata', (req: Request, res: Response) => {
+    res.sendFile(path.join(pagesPath, "my-data.html"));
+});
 
 
 app.get("/account-page", (req: Request, res: Response) => {

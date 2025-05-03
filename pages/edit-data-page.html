@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #74ebd5 0%, #acb6e5 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    .message {
+      margin-top: 15px;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h1>Edit Your Profile</h1>
+    <form id="profile-form">
+      <input type="text" name="firstName" placeholder="First Name" required />
+      <input type="text" name="lastName" placeholder="Last Name" required />
+      <input type="text" name="city" placeholder="City" required />
+      <input type="tel" name="phone" placeholder="Phone Number" required />
+      <button type="submit">Save</button>
+      <div class="message" id="form-message"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('profile-form');
+    const messageEl = document.getElementById('form-message');
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      messageEl.textContent = '';
+
+      const formData = new FormData(form);
+      const body = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('/profile', {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+          window.location.href = '/Personaldata';
+        } else {
+          const error = await res.text();
+          messageEl.textContent = error || 'Failed to update profile';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        messageEl.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
