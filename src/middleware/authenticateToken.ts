@@ -12,7 +12,6 @@ function authenticateToken(req: Request, res: Response, next: NextFunction): voi
         res.status(401).json({ message: "Access denied, token missing" });
         return
     }
-    console.log(token)
     // jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     //     if (err) {
     //         return res.status(403).json({ message: "Token is not valid" });
@@ -26,18 +25,11 @@ function authenticateToken(req: Request, res: Response, next: NextFunction): voi
     // });
 
     try {
-      console.log("you are in auth section")
         const decoded = jwt.verify(token, JWT_SECRET!);
-        if(decoded){
-          console.log(decoded)
-        }
-        
         (req as any).userId = (decoded as any).userId;
-        console.log("you are at end fo auth section")
         next();
 
       } catch {
-        console.log("error in auth section")
         res.status(403).json({ message: 'Invalid token' });
         return
       }

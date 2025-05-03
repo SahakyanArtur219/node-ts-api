@@ -13,17 +13,17 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'../')));
+app.use(express.static(path.join(__dirname,'../dist')));
 const pagesPath = path.join(__dirname, "../pages");
 app.use(cookieParser());
 //app.use("/api", bookRoutes);
 app.use(express.static(path.join(__dirname,'../pages')));
+app.use(express.static('../dist'));
+
 
 app.get('/account', authenticateToken, (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const user = users.find(u => u.id === userId);
-    console.log(userId)
-    console.log(user)
-    console.log("you are in /account")
     if (!user) {
         res.status(404).json({ message: "User not found" });
         return
@@ -60,8 +60,6 @@ app.get('/about', (req: Request, res: Response) => {
 
 
 app.post('/register', async (req: Request, res: Response) => {
-    console.log("api is working")
-
     try{
         const new_email = req.body.email
         const new_password = req.body.password
@@ -77,10 +75,8 @@ app.post('/register', async (req: Request, res: Response) => {
             res.status(400).json({message: "This user already exist"})
             return
         }
-        // console.log("before await")
         const salt = await bcrypt.genSalt(10);
         const new_pass_hash = await bcrypt.hash(new_password, salt)
-        // console.log("after await")
         const new_user: User = {
             id: users.length + 1,
             email: new_email,
@@ -102,7 +98,6 @@ app.post('/login', async (req: Request, res: Response) => {
     try{
         const login_email = req.body.email
         const login_password = req.body.password
-        console.log(`email ${login_email} pass ${login_password}`)
         if(!login_email || !login_password) {
             res.status(400).json({message: "you need to fill both, email and password"})
             return
@@ -118,7 +113,6 @@ app.post('/login', async (req: Request, res: Response) => {
             if(isMatch){
 
                 const token = jwt.sign({ userId: user_exist.id }, JWT_SECRET, { expiresIn: '1m' });
-                console.log(token)
                 res.cookie('token', token, {
                     httpOnly: true,     // JS can't access it!
                     secure: true,       // Only over HTTPS (set to false for local dev if needed)

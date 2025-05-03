@@ -7,12 +7,11 @@ async function fetchAccount(): Promise<void> {
 
     const data: { email?: string; message?: string } = await res.json();
     const div = document.getElementById('account-info') as HTMLDivElement | null;
-
+    
     if (!div) {
       console.error('Could not find #account-info element');
       return;
     }
-
     if (res.ok && data.email) {
       div.innerHTML = `<h1>Hello, ${data.email}</h1>`;
     } else {
